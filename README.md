@@ -51,27 +51,27 @@ xxx.example.com    CNAME  wildcardns.example.com
 in the example above, filter subdomains with the same dns records.
 
 ```
-1 -) cat subdomains.txt | python -b 99.88.55.88
-2 -) cat subdomains.txt | python -b wildcardns.example.com
-3 -) cat subdomains.txt | python -b 99.88.55.88,wildcardns.example.com
+1 -) cat subdomains.txt | python DnsR.py -b 99.88.55.88
+2 -) cat subdomains.txt | python DnsR.py -b wildcardns.example.com
+3 -) cat subdomains.txt | python DnsR.py -b 99.88.55.88,wildcardns.example.com
 ```
 
 sometimes the end of wildcard ip addresses may be different.
 
 ```
-command >  dig a xxx.yyy.com
+command >  dig a xxx.example.com
 
-output  >  xxx.yyy.com   A  99.88.66.88
+output  >  xxx.example.com   A  99.88.66.88
 -----------------------------
 
-command >  dig a ttt.yyy.ccom
+command >  dig a ttt.example.ccom
 
-output  >  ttt.yyy.com   A  99.88.20.21
+output  >  ttt.example.com   A  99.88.20.21
 -----------------------------
 
-command  >  dig a rrr.yyy.com
+command  >  dig a rrr.example.com
 
-output   >  rrr.yyy.com   A  99.88.77.33
+output   >  rrr.example.com   A  99.88.77.33
 
 sometimes wildcard ip addresses may show different results. The first part of all IP addresses starts with 99.88
 Sections after 99.88 may also be different.in such cases 99.88. You can filter by typing.
