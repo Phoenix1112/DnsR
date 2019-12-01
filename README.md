@@ -29,9 +29,8 @@ driver.google.com
 
 ```
 ```
-cat subdomains.txt | python3 DnsR.py
+cat subdomains.txt | python3 DnsR.py -o output.txt
 ```
-When the program ends, you will get an output named output.txt in the working directory.
 
 # Filtering subdomains with wildcard dns records.
 
@@ -51,9 +50,9 @@ xxx.example.com    CNAME  wildcardns.example.com
 in the example above, filter subdomains with the same dns records.
 
 ```
-1 -) cat subdomains.txt | python DnsR.py -b 99.88.55.88
-2 -) cat subdomains.txt | python DnsR.py -b wildcardns.example.com
-3 -) cat subdomains.txt | python DnsR.py -b 99.88.55.88,wildcardns.example.com
+1 -) cat subdomains.txt | python DnsR.py -b 99.88.55.88 -o output.txt
+2 -) cat subdomains.txt | python DnsR.py -b wildcardns.example.com -o output.txt
+3 -) cat subdomains.txt | python DnsR.py -b 99.88.55.88,wildcardns.example.com -o output.txt
 ```
 
 sometimes the end of wildcard ip addresses may be different.
@@ -76,6 +75,6 @@ output   >  rrr.example.com   A  99.88.77.33
 sometimes wildcard ip addresses may show different results. The first part of all IP addresses starts with 99.88
 Sections after 99.88 may also be different.in such cases 99.88. You can filter by typing.
 
-cat subdomains.txt | python3 DnsR.py -b 99.88.
+cat subdomains.txt | python3 DnsR.py -b 99.88. -o output.txt
 
 ```
