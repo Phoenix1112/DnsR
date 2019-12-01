@@ -71,10 +71,10 @@ output  >  ttt.example.com   A  99.88.20.21
 command  >  dig a rrr.example.com
 
 output   >  rrr.example.com   A  99.88.77.33
-
+```
 sometimes wildcard ip addresses may show different results. The first part of all IP addresses starts with 99.88
 Sections after 99.88 may also be different.in such cases 99.88. You can filter by typing.
-
+```
 cat subdomains.txt | python3 DnsR.py -b 99.88. -o output.txt
 
 ```
