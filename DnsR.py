@@ -8,7 +8,10 @@ from multiprocessing import Pool, cpu_count
 
 def attack(sub):
 
-	querys = pydig.query(str(sub),'A' and "CNAME")
+	querys = pydig.query(str(sub),'A')
+	
+	if not querys:
+		querys = pydig.query(str(sub),'CNAME')
 
 	if len(querys) > 0:
 		if args["blacklist"]:
