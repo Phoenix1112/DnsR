@@ -131,7 +131,7 @@ if __name__ == "__main__":
     ap.add_argument("-l","--list", required=False, metavar="", help="Read Targets From List")
     ap.add_argument("-s","--stdin", required=False, action="store_true", help="Read Targets From Stding")
     ap.add_argument("-o","--output", required=False, metavar="", help="Save output")
-    ap.add_argument("-t", "--thread", required=False, metavar="",default=20, type=int, help="Thread Number")
+    ap.add_argument("-t", "--thread", required=False, metavar="",default=20, type=int, help="Thread Number(Default-20)")
     args = ap.parse_args()
 
     print_lock = threading.Lock()
