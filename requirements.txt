@@ -1,3 +1,2 @@
 pydig
-requests
 colorama
