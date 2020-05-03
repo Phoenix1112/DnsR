@@ -5,6 +5,7 @@ To use this program, python3 software language must be installed on your compute
 
 The DnsR program uses the ip address of many dns services for dns resolve. 
 
+```
 CloudFlare : 1.1.1.1, 1.0.0.1
 Google DNS : 8.8.8.8, 8.8.4.4
 Yandex DNS : 77.88.8.8, 77.88.8.1
@@ -15,6 +16,7 @@ OpenDNS : 208.67.222.222, 208.67.220.220
 CleanBrowsing : 185.228.168.9, 85.228.169.9
 Alternate DNS : 198.101.242.72, 23.253.163.53
 AdGuard DNS : 176.103.130.130, 176.103.130.131
+```
 
 # Install
 
