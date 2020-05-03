@@ -18,6 +18,10 @@ Alternate DNS : 198.101.242.72, 23.253.163.53
 AdGuard DNS : 176.103.130.130, 176.103.130.131
 ```
 
+The DnsR program also adds the ip addresses of the target's name servers to the list above. For example, if the target website uses amazonaws DNS servers, the IP addresses of those DNS servers are used to resolve subdomains.
+This method will have a greater impact on the operation of the Program.
+
+
 # Install
 
 ```
@@ -32,29 +36,105 @@ pip3 install -r requirements.txt
 
 # Usage
 
-You can read subdomains in two different ways. Use the following command to resolve targets in a list called subdomains.txt.
-
+The program is very simple to use. You can use the DnsR program in two different ways.
 
 ```
-python3 DnsR.py --list subdomains.txt
+python3 DnsR.py --list subdomains.txt --output resolved_results.txt
 
-python3 DnsR.py --list subdomains.txt --thread 50
-
-python3 DnsR.py --list subdomains.txt --thread 50 --output /root/save_results.txt
+cat subdomains.txt | python3 DnsR.py --stdin --output resolved_results.txt
 
 ```
 
-The default thread count is 20. But if you want, you can change this number as above with the -t or --thread commands.
-When you use the program as above, a banner named DNSR will appear before the program starts. 
+no banner was used in the program.  because I wanted you to be able to use DnsR output with another program. When you want to use subdomains with the pipe method You must use the --stdin parameter. so the program will read subdomains from stdin.
 
-This banner will not appear when you use the program with the -s or --stdin commands. because you can transfer the output to another program with the pipe method.
+By default, 20 threads are used in the program. You can increase the number of threads at any time with the --thread parameter.
 
 ```
-cat subdomains.txt | python3 DnsR.py --stdin
+python3 DnsR.py --list subdomains.txt --thread 50 --output resolved_results.txt
 
-cat subdomains.txt | python3 DnsR.py --stdin --thread 50
-
-cat subdomains.txt | python3 DnsR.py --stdin --thread 50 --output /root/save_results.txt
+cat subdomains.txt | python3 DnsR.py --stdin --thread 50 --output resolved_results.txt
 
 ```
 
+The features of the DnsR program are not limited to these. You can also use the --blacklist parameter to filter wildcard subdomains. To use this parameter, you need to know the wildcard cname record or wildcard ip address in advance.
+
+
+example:
+--------
+```
+
+dig cname admin.www.example.com
+
+admin.www.example.com  CNAME  x.example.com
+
+
+dig cname ftp.www.example.com
+
+ftp.www.example.com  CNAME  x.example.com
+
+
+dig cname cloud.www.example.com
+
+cloud.www.example.com  CNAME  x.example.com
+
+```
+
+In the example above, we see that each cname record points to the x.example.com dns record. this is a wildcard dns record. 
+With the DnsR program, you can filter subdomains by filtering according to such dns records.
+
+```
+cat subdomains.txt
+
+admin.www.example.com
+ftp.www.example.com 
+cloud.www.example.com
+account.example.com
+video.example.com
+
+
+
+python3 DnsR.py --list subdomains.txt --blacklist x.example.com --output resolved_results.txt
+
+
+output:
+------
+account.example.com
+video.example.com
+
+```
+
+Looking at the results above, we filtered the subdomains pointing to the dns record x.example.com. You can enter multiple blacklist values by placing commas between them. If you want, you can write ip addresses to blacklist value. You can also type shortened  ip addresses or shortened cname records.Sometimes there is more than one subdomain with an incorrect A record in a subdomain list. these ip addresses usually have the same beginning but different ends. You can also filter them with the blacklist parameter.
+
+```
+cat subdomains.txt
+
+admin.example.com
+ftp.example.com
+account.example.com
+
+
+dig a admin.example.com
+
+admin.example.com  A  192.55.65.88
+
+
+dig a ftp.example.com
+
+ftp.example.com  A  192.55.12.66
+
+
+dig a account.example.com
+
+account.example.com  a  207.66.88.21
+
+
+
+python3 DnsR.py -l subdomains.txt -b 192.55,x.example.com,192.77.88.6
+
+
+output:
+------
+
+account.example.com
+
+```
