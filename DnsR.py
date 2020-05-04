@@ -22,7 +22,7 @@ class DnsR():
 
 		if args.stdin and not args.list:
 
-			[self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x)]
+			[self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x) and not x in self.target_list]
 
 			if not self.target_list:
 
@@ -42,7 +42,7 @@ class DnsR():
 
 			with open(args.list, "r", encoding="utf-8") as f:
 
-				[self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x)]
+				[self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x) and not x in self.target_list]
 
 
 		else:
@@ -71,10 +71,6 @@ class DnsR():
 
 			sys.exit()
 
-
-		self.target_list = list(set(self.target_list))
-
-		self.target_list.sort()
 
 		self.resolver = pydig.Resolver(nameservers=[
 			'1.1.1.1','1.0.0.1',
