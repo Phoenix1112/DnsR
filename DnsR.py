@@ -250,7 +250,7 @@ if __name__ == "__main__":
 
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-l", "--list", metavar="", required=False, help="Targets List")
-	ap.add_argument("-s", "--stdin", action="store_true", required=False, help="Targets List")
+	ap.add_argument("-s", "--stdin", action="store_true", required=False, help="Read Subdomains From Stdin")
 	ap.add_argument("-b", "--blacklist", metavar="", required=False, help="Filter Blacklist")
 	ap.add_argument("-o", "--output", metavar="", required=False, help="Save Output")
 	ap.add_argument("-t", "--thread", metavar="", default=20, type=int, required=False, help="Thread Number(Default-20)")
