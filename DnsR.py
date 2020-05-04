@@ -122,16 +122,22 @@ class DnsR():
 		tld = tldextract.extract(xyz).registered_domain
 
 		try:
-			query_ns = pydig.query(tld,"NS")
+			if len(tld) != 0:
+				
+				query_ns = pydig.query(tld,"NS")
 
-			if query_ns:
+				if query_ns:
 
-				self.ns_ip_address(query_ns)
+					self.ns_ip_address(query_ns)
+			else:
+				pass
 		except:
 			pass
 
-		self.domain_list.append(tld)
-		self.domain_list = tuple(self.domain_list)
+		if len(tld) != 0:
+			
+			self.domain_list.append(tld)
+			self.domain_list = tuple(self.domain_list)
 
 
 		with ThreadPoolExecutor(max_workers=args.thread) as executor:
@@ -142,17 +148,23 @@ class DnsR():
 
 					r = tldextract.extract(x).registered_domain
 
-					self.domain_list = list(self.domain_list)
-					self.domain_list.append(r)
-					self.domain_list = tuple(self.domain_list)
+					if len(r) != 0:
 					
+						self.domain_list = list(self.domain_list)
+						self.domain_list.append(r)
+						self.domain_list = tuple(self.domain_list)
 					try:
+						if len(r) != 0:
 
-						query_ns = pydig.query(r,"NS")
+							query_ns = pydig.query(r,"NS")
 
-						if query_ns:
+							if query_ns:
 
-							self.ns_ip_address(query_ns)
+								self.ns_ip_address(query_ns)
+						else:
+							pass
+
+
 					except:
 						pass
 
