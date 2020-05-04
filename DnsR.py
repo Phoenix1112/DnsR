@@ -249,7 +249,7 @@ class DnsR():
 
 		try:
 
-			regex = re.findall(r"é|!|'|\^|\+|\$|%|\*|/|.-|-.|\?|&|#",str(subdomain))
+			regex = re.findall(r"é|!|'|\^|\+|\$|%|\*|/|\.\-|\-\.|\?|&|#",str(subdomain))
 
 			if regex:
 
