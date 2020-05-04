@@ -121,12 +121,14 @@ class DnsR():
 
 		tld = tldextract.extract(xyz).registered_domain
 
-		query_ns = pydig.query(tld,"NS")
+		try:
+			query_ns = pydig.query(tld,"NS")
 
-		if query_ns:
+			if query_ns:
 
-			self.ns_ip_address(query_ns)
-
+				self.ns_ip_address(query_ns)
+		except:
+			pass
 
 		self.domain_list.append(tld)
 		self.domain_list = tuple(self.domain_list)
@@ -143,12 +145,16 @@ class DnsR():
 					self.domain_list = list(self.domain_list)
 					self.domain_list.append(r)
 					self.domain_list = tuple(self.domain_list)
+					
+					try:
 
-					query_ns = pydig.query(r,"NS")
+						query_ns = pydig.query(r,"NS")
 
-					if query_ns:
+						if query_ns:
 
-						self.ns_ip_address(query_ns)
+							self.ns_ip_address(query_ns)
+					except:
+						pass
 
 				executor.submit(self.resolve_subs, x)
 
