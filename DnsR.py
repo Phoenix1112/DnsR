@@ -144,6 +144,9 @@ class DnsR():
 		with ThreadPoolExecutor(max_workers=args.thread) as executor:
 
 			for x in self.target_list:
+				
+				if x.startswith("."):
+					x = x[1:]
 
 				if not x.endswith(self.domain_list):
 
