@@ -21,7 +21,7 @@ class DnsR():
 
 		if args.stdin and not args.list:
 
-			[self.target_list.append(str(x)) for x in sys.stdin.read().split("\n") if x and self.control(x)]
+			[self.target_list.append(str(x)) for x in sys.stdin.read().split("\n") if x and not self.control(x)]
 
 			if not self.target_list:
 
@@ -41,7 +41,7 @@ class DnsR():
 
 			with open(args.list, "r", encoding="utf-8") as f:
 
-				[self.target_list.append(x) for x in f.read().split("\n") if x and self.control(x)]
+				[self.target_list.append(x) for x in f.read().split("\n") if x and not self.control(x)]
 
 
 		else:
