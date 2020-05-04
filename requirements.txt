@@ -1,2 +1,3 @@
 pydig
 colorama
+tldextract
