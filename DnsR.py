@@ -141,7 +141,7 @@ class DnsR():
 
 			for x in self.target_list:
 				
-				if x.startswith("."):
+				if x.startswith(".") or x.startswith("-"):
 					x = x[1:]
 
 				if not x.endswith(self.domain_list):
