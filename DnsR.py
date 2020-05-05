@@ -17,7 +17,6 @@ class DnsR():
 		init(autoreset=True)
 		self.target_list = list()
 		self.lock = threading.Lock()
-		self.domain_list = list()
 
 
 		if args.stdin and not args.list:
