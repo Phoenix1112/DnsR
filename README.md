@@ -20,8 +20,6 @@ Alternate DNS : 198.101.242.72, 23.253.163.53
 AdGuard DNS : 176.103.130.130, 176.103.130.131
 ```
 
-The DnsR program also adds the ip addresses of the target's name servers to the list above. For example, if the target website uses amazonaws DNS servers, the IP addresses of those DNS servers are used to resolve subdomains.
-This method will have a greater impact on the operation of the Program.
 
 
 # Install
