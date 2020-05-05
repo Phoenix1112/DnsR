@@ -22,7 +22,7 @@ class DnsR():
 
 		if args.stdin and not args.list:
 
-			[self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x) and not x in self.target_list]
+			[self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x)]
 
 			if not self.target_list:
 
@@ -42,7 +42,7 @@ class DnsR():
 
 			with open(args.list, "r", encoding="utf-8") as f:
 
-				[self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x) and not x in self.target_list]
+				[self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x)]
 
 
 		else:
@@ -114,27 +114,7 @@ class DnsR():
 				self.BlackList = re.compile(req)
 
 
-		xyz = self.target_list[0]
-
-		tld = tldextract.extract(xyz).registered_domain
-
-		try:
-			if len(tld) != 0:
-				
-				query_ns = pydig.query(tld,"NS")
-
-				if query_ns:
-
-					self.ns_ip_address(query_ns)
-			else:
-				pass
-		except:
-			pass
-
-		if len(tld) != 0:
-			
-			self.domain_list.append(tld)
-			self.domain_list = tuple(self.domain_list)
+		self.target_list = list(set(self.target_list))
 
 
 		with ThreadPoolExecutor(max_workers=args.thread) as executor:
@@ -143,30 +123,6 @@ class DnsR():
 				
 				if x.startswith(".") or x.startswith("-"):
 					x = x[1:]
-
-				if not x.endswith(self.domain_list):
-
-					r = tldextract.extract(x).registered_domain
-
-					if len(r) != 0:
-					
-						self.domain_list = list(self.domain_list)
-						self.domain_list.append(r)
-						self.domain_list = tuple(self.domain_list)
-					try:
-						if len(r) != 0:
-
-							query_ns = pydig.query(r,"NS")
-
-							if query_ns:
-
-								self.ns_ip_address(query_ns)
-						else:
-							pass
-
-
-					except:
-						pass
 
 				executor.submit(self.resolve_subs, x)
 
@@ -217,32 +173,6 @@ class DnsR():
 
 			f.write(str(target) + "\n")
 
-
-	def ns_ip_address(self,ns_list):
-
-		for x in ns_list:
-
-			if not "cloudflare" in x:
-
-				ip_address = pydig.query(x, "A")
-
-				if ip_address:
-
-					if not ip_address[0] in self.resolver.nameservers:
-
-						self.resolver.nameservers.append(ip_address[0])
-
-					else:
-
-						pass
-
-				else:
-
-					pass
-
-			else:
-
-				pass
 
 
 	def control(self,subdomain):
