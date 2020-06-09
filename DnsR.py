@@ -57,13 +57,13 @@ class DnsResolver():
 
             \rcat subdomains.txt | python3 DnsR.py --stdin --output resolved.txt
 
-            \rpython3 DnsR.py --list subdomains.txt --blacklist 198,55,44,77
+            \rpython3 DnsR.py --list subdomains.txt --blacklist 198.55.44.77
 
-            \rcat subdomains.txt | python3 DnsR.py --stdin --blacklist 198,55,44,77
+            \rcat subdomains.txt | python3 DnsR.py --stdin --blacklist 198.55.44.77
 
-            \rpython3 DnsR.py --list subdomains.txt --thread 50 --blacklist 198,55,44,77,xx.example.com
+            \rpython3 DnsR.py --list subdomains.txt --thread 50 --blacklist 198.55.44.77,xx.example.com
 
-            \rcat subdomains.txt | python3 DnsR.py --stdin --blacklist 198,55,44,77,xx.example.com
+            \rcat subdomains.txt | python3 DnsR.py --stdin --blacklist 198.55.44.77,xx.example.com
 
             """)
 
