@@ -1,199 +1,197 @@
 import re
 import os
 import sys
-import pydig
 import argparse
 import threading
 import tldextract
+import dns.resolver
 import urllib.parse
 from colorama import *
 from concurrent.futures import ThreadPoolExecutor
 
-class DnsR():
+class DnsResolver():
 
-	def __init__(self):
+    def __init__(self):
 
+        init(autoreset=True)
+        self.target_list = list()
+        self.print_lock = threading.Lock()
 
-		init(autoreset=True)
-		self.target_list = list()
-		self.lock = threading.Lock()
+        if args.stdin and not args.list:
 
+            [self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x)]
 
-		if args.stdin and not args.list:
+            if not self.target_list:
 
-			[self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x)]
+                print(Fore.RED+"Subdomains Not Found In Stdin")
 
-			if not self.target_list:
+                sys.exit()
+        
+        elif args.list and not args.stdin:
 
-				print(Fore.RED+"Subdomains Not Found In Stdin")
+            if not os.path.exists(args.list):
 
-				sys.exit()
+                print(Fore.RED+"File Not Found:",args.list)
 
+                sys.exit()
+            
+            with open(args.list, "r", encoding="utf-8") as f:
 
-		elif args.list and not args.stdin:
+                [self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x)]
 
-			if not os.path.exists(args.list):
+                if not self.target_list:
 
-				print(Fore.RED+"File Not Found:",args.list)
+                    print(Fore.RED+"Your Subdomain List IS Empty:",args.list)
 
-				sys.exit()
+        else:
 
+            print(Fore.RED+"""
 
-			with open(args.list, "r", encoding="utf-8") as f:
+            \rYou Used The Wrong Parameter""",Fore.MAGENTA+"""
 
-				[self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x)]
 
+            \rUsage:
+            \r------
 
-		else:
+            \rpython3 DnsR.py --list subdomains.txt --output resolved.txt
 
-			print(Fore.RED+"""
+            \rcat subdomains.txt | python3 DnsR.py --stdin --output resolved.txt
 
-			\rYou Used The Wrong Parameter""",Fore.MAGENTA+"""
+            \rpython3 DnsR.py --list subdomains.txt --blacklist 198,55,44,77
 
+            \rcat subdomains.txt | python3 DnsR.py --stdin --blacklist 198,55,44,77
 
-			\rUsage:
-			\r------
+            \rpython3 DnsR.py --list subdomains.txt --thread 50 --blacklist 198,55,44,77,xx.example.com
 
-			\rpython3 DnsR.py --list subdomains.txt --output resolved.txt
+            \rcat subdomains.txt | python3 DnsR.py --stdin --blacklist 198,55,44,77,xx.example.com
 
-			\rcat subdomains.txt | python3 DnsR.py --stdin --output resolved.txt
+            """)
 
-			\rpython3 DnsR.py --list subdomains.txt --blacklist 198,55,44,77
+            sys.exit()
+        
+        resolvers_ips = ['1.1.1.1','1.0.0.1','8.8.8.8','8.8.4.4','77.88.8.8','77.88.8.1']
 
-			\rcat subdomains.txt | python3 DnsR.py --stdin --blacklist 198,55,44,77
+        self.Dnspython_Resolver = dns.resolver.Resolver()
+        self.Dnspython_Resolver.timeout = 3
+        self.Dnspython_Resolver.nameservers = resolvers_ips
 
-			\rpython3 DnsR.py --list subdomains.txt --thread 50 --blacklist 198,55,44,77,xx.example.com
+        if args.blacklist:
 
-			\rcat subdomains.txt | python3 DnsR.py --stdin --blacklist 198,55,44,77,xx.example.com
+            if not "," in args.blacklist:
 
-			""")
+                x = ".*" + str(args.blacklist).replace(".",r"\.") + "*."
+                self.BlackList = re.compile(x)
+            
+            else:
 
-			sys.exit()
+                x = args.blacklist.split(",")
+                y = []
 
+                for i in x:
 
-		self.resolver = pydig.Resolver(nameservers=[
-			'1.1.1.1','1.0.0.1',
-			'8.8.8.8','8.8.4.4',
-			'77.88.8.8','77.88.8.1'])
+                    if i:
 
+                        i = ".*" + i.replace(".", r"\.") + "*."
+                        y.append(i)
+                    
+                req = ("|").join(y)
+                
+                self.BlackList = re.compile(req)
 
-		if args.blacklist:
 
-			if not "," in args.blacklist:
+        with ThreadPoolExecutor(max_workers=args.thread) as executor:
 
-				x = args.blacklist
+            executor.map(self.resolve_subs, self.target_list)
 
-				x = ".*" + x.replace(".",r"\.") + "*."
 
-				self.BlackList = re.compile(x)
+    def resolve_subs(self, target):
 
-			else:
+        try:
 
-				x = args.blacklist.split(",")
+            dns_query = self.Dnspython_Resolver.query(target, "A")
 
-				y = []
+            ip_address = dns_query[0].to_text()
 
-				for i in x:
+            cname = dns_query.canonical_name.to_text()
 
-					if i:
+            if self.analysist([ip_address, cname]):
+                
+                self.print_now(target)
+        
+        except dns.resolver.NXDOMAIN as nx:
 
-						i = ".*" + i.replace(".", r"\.") + "*."
+            cname = nx.canonical_name.to_text()
 
-						y.append(i)
+            if cname.endswith("."):
 
-				req = ("|").join(y)
+                cname = cname[:-1]
+            
+            if target != cname:
+                
+                if self.analysist([cname]):
 
-				self.BlackList = re.compile(req)
+                    self.print_now(target)
 
+        except:
+            pass
+    
+    def analysist(self, results):
 
-		self.target_list = list(set(self.target_list))
+        if args.blacklist:
 
+            filter_blacklist = list(filter(self.BlackList.match, results))
 
-		with ThreadPoolExecutor(max_workers=args.thread) as executor:
+            if not filter_blacklist:
 
-			for x in self.target_list:
-				
-				if x.startswith(".") or x.startswith("-"):
-					x = x[1:]
+                return True
+            
+            else:
 
-				executor.submit(self.resolve_subs, x)
+                return False
+        
+        else:
 
+            return True
 
-	def resolve_subs(self,target):
+    def print_now(self, target):
 
-		try:
+        with self.print_lock:
 
-			dns_query = self.resolver.query(target, 'A')
+            print(Fore.GREEN+str(target))
 
-			if dns_query:
 
-				if not args.blacklist:
+        if args.output:
 
-					with self.lock:
+            with open(args.output, "a+", encoding="utf-8") as f:
+                f.write(str(target) + "\n")
 
-						print(Fore.GREEN+str(target))
 
-					if args.output:
+    def control(self,subdomain):
 
-						self.save_output(target)
+        try:
 
-				else:
+            regex = re.findall(r"é|!|'|\^|\+|\$|%|\*|/|\.\-|\-\.|\?|&|#",str(subdomain))
 
-					find_blacklist = list(filter(self.BlackList.match, dns_query))
+            if regex:
 
-					if not find_blacklist:
+                return True
+            
+            else:
 
-						with self.lock:
+                return False
+        
+        except:
 
-							print(Fore.GREEN+str(target))
-
-						if args.output:
-
-							self.save_output(target)
-			else:
-
-				pass
-
-		except:
-			pass
-
-
-
-	def save_output(self,target):
-
-		with open(args.output, "a+", encoding="utf-8") as f:
-
-			f.write(str(target) + "\n")
-
-
-
-	def control(self,subdomain):
-
-		try:
-
-			regex = re.findall(r"é|!|'|\^|\+|\$|%|\*|/|\.\-|\-\.|\?|&|#",str(subdomain))
-
-			if regex:
-
-				return True
-
-			else:
-
-				return False
-
-		except:
-
-			return False
+            pass
 
 
 if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-l", "--list", metavar="", required=False, help="Targets List")
+    ap.add_argument("-s", "--stdin", action="store_true", required=False, help="Read Subdomains From Stdin")
+    ap.add_argument("-b", "--blacklist", metavar="", required=False, help="Filter Blacklist")
+    ap.add_argument("-o", "--output", metavar="", required=False, help="Save Output")
+    ap.add_argument("-t", "--thread", metavar="", default=20, type=int, required=False, help="Thread Number(Default-20)")
+    args = ap.parse_args()
 
-	ap = argparse.ArgumentParser()
-	ap.add_argument("-l", "--list", metavar="", required=False, help="Targets List")
-	ap.add_argument("-s", "--stdin", action="store_true", required=False, help="Read Subdomains From Stdin")
-	ap.add_argument("-b", "--blacklist", metavar="", required=False, help="Filter Blacklist")
-	ap.add_argument("-o", "--output", metavar="", required=False, help="Save Output")
-	ap.add_argument("-t", "--thread", metavar="", default=20, type=int, required=False, help="Thread Number(Default-20)")
-	args = ap.parse_args()
-
-	Run = DnsR()
+    Start_attack = DnsResolver()
