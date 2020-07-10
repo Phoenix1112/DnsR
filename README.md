@@ -1,7 +1,5 @@
 # DnsR
 
-NOTE: this program has not been tested on windows operating system.
-
 The dnsr program is a program used to resolve subdomains. You can resolve subdomains without the need for any resolvers.txt
 To use this program, python3 software language must be installed on your computer.
 
