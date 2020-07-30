@@ -19,7 +19,7 @@ class DnsResolver():
 
         if args.stdin and not args.list:
 
-            [self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x)]
+            [self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x) and self.control_two(x)]
 
             if not self.target_list:
 
@@ -37,7 +37,7 @@ class DnsResolver():
             
             with open(args.list, "r", encoding="utf-8") as f:
 
-                [self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x)]
+                [self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x) and self.control_two(x)]
 
                 if not self.target_list:
 
@@ -183,7 +183,16 @@ class DnsResolver():
         except:
 
             pass
+    
+    def control_two(self,subdomain):
 
+        try:
+            if subdomain.endswith(".") or subdomain.endswith("-") or subdomain.endswith("_") or subdomain.startswith(".") or subdomain.startswith("-"):
+                return False
+            else:
+                return True
+        except:
+            pass
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
