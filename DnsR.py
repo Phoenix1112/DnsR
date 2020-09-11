@@ -108,7 +108,7 @@ class DnsResolver():
 
         try:
 
-            dns_query = self.Dnspython_Resolver.query(target, "A")
+            dns_query = self.Dnspython_Resolver.resolve(target, "A")
 
             ip_address = dns_query[0].to_text()
 
