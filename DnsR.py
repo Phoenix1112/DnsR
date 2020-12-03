@@ -26,7 +26,7 @@ class DnsResolver():
                 print(Fore.RED+"Subdomains Not Found In Stdin")
 
                 sys.exit()
-        
+
         elif args.list and not args.stdin:
 
             if not os.path.exists(args.list):
@@ -34,7 +34,7 @@ class DnsResolver():
                 print(Fore.RED+"File Not Found:",args.list)
 
                 sys.exit()
-            
+
             with open(args.list, "r", encoding="utf-8") as f:
 
                 [self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x) and self.control_two(x)]
@@ -68,11 +68,11 @@ class DnsResolver():
             """)
 
             sys.exit()
-        
+
         resolvers_ips = ['1.1.1.1','1.0.0.1','8.8.8.8','8.8.4.4','77.88.8.8','77.88.8.1']
 
         self.Dnspython_Resolver = dns.resolver.Resolver()
-        self.Dnspython_Resolver.timeout = 3
+        self.Dnspython_Resolver.timeout = 7
         self.Dnspython_Resolver.nameservers = resolvers_ips
 
         if args.blacklist:
@@ -81,7 +81,7 @@ class DnsResolver():
 
                 x = ".*" + str(args.blacklist).replace(".",r"\.") + "*."
                 self.BlackList = re.compile(x)
-            
+
             else:
 
                 x = args.blacklist.split(",")
@@ -93,9 +93,9 @@ class DnsResolver():
 
                         i = ".*" + i.replace(".", r"\.") + "*."
                         y.append(i)
-                    
+ 
                 req = ("|").join(y)
-                
+
                 self.BlackList = re.compile(req)
 
 
@@ -115,9 +115,9 @@ class DnsResolver():
             cname = dns_query.canonical_name.to_text()
 
             if self.analysist([ip_address, cname]):
-                
+
                 self.print_now(target)
-        
+
         except dns.resolver.NXDOMAIN as nx:
 
             cname = nx.canonical_name.to_text()
@@ -125,16 +125,16 @@ class DnsResolver():
             if cname.endswith("."):
 
                 cname = cname[:-1]
-            
+
             if target != cname:
-                
+
                 if self.analysist([cname]):
 
                     self.print_now(target)
 
         except:
             pass
-    
+
     def analysist(self, results):
 
         if args.blacklist:
@@ -144,11 +144,11 @@ class DnsResolver():
             if not filter_blacklist:
 
                 return True
-            
+
             else:
 
                 return False
-        
+
         else:
 
             return True
@@ -175,15 +175,15 @@ class DnsResolver():
             if regex:
 
                 return True
-            
+
             else:
 
                 return False
-        
+
         except:
 
             pass
-    
+
     def control_two(self,subdomain):
 
         try:
