@@ -19,7 +19,7 @@ class DnsResolver():
 
         if args.stdin and not args.list:
 
-            [self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read()).replace("*.","").split("\n") if x and not self.control(x) and self.control_two(x)]
+            [self.target_list.append(str(x)) for x in urllib.parse.unquote(sys.stdin.read().lower()).replace("*.","").split("\n") if x and not self.control(x) and self.control_two(x)]
 
             if not self.target_list:
 
@@ -37,7 +37,7 @@ class DnsResolver():
 
             with open(args.list, "r", encoding="utf-8") as f:
 
-                [self.target_list.append(x) for x in urllib.parse.unquote(f.read()).replace("*.","").split("\n") if x and not self.control(x) and self.control_two(x)]
+                [self.target_list.append(x) for x in urllib.parse.unquote(f.read().lower()).replace("*.","").split("\n") if x and not self.control(x) and self.control_two(x)]
 
                 if not self.target_list:
 
