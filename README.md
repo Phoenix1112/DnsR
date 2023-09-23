@@ -129,3 +129,9 @@ output:
 account.example.com
 
 ```
+
+With the -w or --wildcard command, clean subdomains are obtained by filtering out those with the same DNS address.
+
+```
+python3 Dnsr.py -l subdomains.txt -w -o output.txt
+``` 
