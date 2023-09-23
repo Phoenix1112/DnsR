@@ -16,6 +16,7 @@ class DnsResolver():
         init(autoreset=True)
         self.target_list = list()
         self.print_lock = threading.Lock()
+        self.wildcard_subs = []
 
         if args.stdin and not args.list:
 
@@ -93,7 +94,7 @@ class DnsResolver():
 
                         i = ".*" + i.replace(".", r"\.") + "*."
                         y.append(i)
- 
+
                 req = ("|").join(y)
 
                 self.BlackList = re.compile(req)
@@ -112,11 +113,22 @@ class DnsResolver():
 
             ip_address = dns_query[0].to_text()
 
-            cname = dns_query.canonical_name.to_text()
+            if args.wildcard:
+                if ip_address in self.wildcard_subs:
 
-            if self.analysist([ip_address, cname]):
+                    pass
 
-                self.print_now(target)
+                else:
+                    self.wildcard_subs.append(ip_address)
+                    cname = dns_query.canonical_name.to_text()
+
+                    if self.analysist([ip_address, cname]):
+
+                        self.print_now(target)
+            else:
+                cname = dns_query.canonical_name.to_text()
+                if self.analysist([ip_address, cname]):
+                    self.print_now(target)
 
         except dns.resolver.NXDOMAIN as nx:
 
@@ -126,11 +138,22 @@ class DnsResolver():
 
                 cname = cname[:-1]
 
-            if target != cname:
+            if args.wildcard:
+                if cname in self.wildcard_subs:
+                    pass
 
-                if self.analysist([cname]):
+                else:
 
-                    self.print_now(target)
+                    self.wildcard_subs.append(cname)
+                    if target != cname:
+
+                        if self.analysist([cname]):
+
+                            self.print_now(target)
+            else:
+                if target != cname:
+                    if self.analysist([cname]):
+                        self.print_now(target)
 
         except:
             pass
@@ -201,6 +224,7 @@ if __name__ == "__main__":
     ap.add_argument("-b", "--blacklist", metavar="", required=False, help="Filter Blacklist")
     ap.add_argument("-o", "--output", metavar="", required=False, help="Save Output")
     ap.add_argument("-t", "--thread", metavar="", default=20, type=int, required=False, help="Thread Number(Default-20)")
+    ap.add_argument("-w", "--wildcard", action="store_true", required=False, help="Filter wildcard subs")
     args = ap.parse_args()
 
     Start_attack = DnsResolver()
